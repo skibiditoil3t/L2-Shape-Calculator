@@ -55,16 +55,10 @@ def string_checker(question, num_letters, valid_ans_list):
         print(f"Please choose an option from {valid_ans_list}\n")
 
 
-def formula_check(question, shapes_list, exit_code=None):
-    """asks user for their chosen shape then
-    calculates the chosen shape by their formula"""
+def formula_check(response, exit_code):
+    """calculates the chosen shape by their formula"""
     area = 0
     perimeter = 0
-
-    # asks for shape
-    response = string_checker(question, 1, shapes_list)
-
-    print(response)
 
     if response == exit_code:
         return response
@@ -110,7 +104,8 @@ def formula_check(question, shapes_list, exit_code=None):
 
 # initialise variables
 
-shapes = ["circle", "triangle", "rectangle", "square", "trapezium"]
+shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 
 while True:
-    formula = formula_check("What shape are you solving? ", shapes, "xxx")
+    shape = string_checker("What shape are you solving? ", 1, shape_list)
+    formula = formula_check(shape, "xxx")
