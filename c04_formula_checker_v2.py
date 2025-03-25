@@ -22,25 +22,35 @@ def string_checker(question, num_letters, valid_ans_list):
     while True:
         response = input(question).lower()
 
+        if response == "xxx":
+            return response
+
         for item in valid_ans_list:
+
             if response == item:
                 return item
+
+            if response == "tri":
+                item = "triangle"
+                return item
+
+            if response == "tra":
+                item = "trapezium"
+                return item
+
             elif response == item[:num_letters]:
                 return item
 
             elif response == "t":
-                item = "triangle"
-                response = yes_no("Your chosen shape is triangle. Change to trapezium? ")
-                if response == "yes":
-                    item = "trapezium"
-                return item
 
-            elif response == "tri" or "tra":
-                if response == "tri":
-                    item = "triangle"
+                option = yes_no("Default shape is triangle. Change to trapezium? ")
+
+                if option == "yes":
+                    setting = "trapezium"
+                    return setting
                 else:
-                    item = "trapezium"
-                return item
+                    setting = "triangle"
+                    return setting
 
         print(f"Please choose an option from {valid_ans_list}\n")
 
@@ -51,22 +61,13 @@ def formula_check(question, shapes_list, exit_code=None):
     area = 0
     perimeter = 0
 
-    error = "enter a valid shape"
-
+    # asks for shape
     response = string_checker(question, 1, shapes_list)
-    print("you chose", response)
+
+    print(response)
 
     if response == exit_code:
         return response
-
-    try:
-        if response in shapes_list:
-            pass
-        else:
-            print("Invalid shape / Write the shape's full name.\n")
-
-    except ValueError:
-        print(error)
 
     # will replace values with random.randint()
     # and phrase question later on
@@ -112,5 +113,4 @@ def formula_check(question, shapes_list, exit_code=None):
 shapes = ["circle", "triangle", "rectangle", "square", "trapezium"]
 
 while True:
-    formula = formula_check("What shape are you solving? ", shapes)
-    print()
+    formula = formula_check("What shape are you solving? ", shapes, "xxx")
