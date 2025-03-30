@@ -31,11 +31,11 @@ def string_checker(question, num_letters, valid_ans_list):
             if response == item:
                 return item
 
-            if response == "tri":
+            elif response == "tri":
                 item = "triangle"
                 return item
 
-            if response == "tra":
+            elif response == "tra":
                 item = "trapezium"
                 return item
 
@@ -59,7 +59,6 @@ def string_checker(question, num_letters, valid_ans_list):
 def number_checker(question, num_type, exit_code=None):
     """"checks if an integer is more than zero"""
 
-    error = "oops - please enter an integer more than zero"
     if num_type == "integer":
         error = "enter an integer more than zero bruh"
         change_to = int
@@ -85,7 +84,7 @@ def number_checker(question, num_type, exit_code=None):
             print(error)
 
 
-def math_loop(response, exit_code):
+def formula_check(response, exit_code):
     """calculates the chosen shape by their formula"""
 
     # initialise variables
@@ -102,7 +101,7 @@ def math_loop(response, exit_code):
     # will replace values with random.randint()
     # and phrase question later on
     if response == "circle":
-        perimeter = math.pi * (a*2)
+        perimeter = math.pi * (a * 2)
         area = math.pi * (a ** 2)
 
     # perhaps have 3 different types of triangles aka
@@ -115,27 +114,48 @@ def math_loop(response, exit_code):
 
     elif response == "rectangle":
         area = ((a ** 2) * (b ** 2))
+        perimeter = (a * 2) + (b * 2)
 
     elif response == "square":
-        area = 0 ** 2
-        perimeter = a + b + c + d
+        area = a ** 2
+        perimeter = a * 4
 
     elif response == "trapezium":
         area = ((a + b) / 2) * c
         perimeter = a + b + c + d
 
-    mode = yes_no("Default to solving for Area, change to Perimeter? ")
-    if mode == "yes":
-        mode = perimeter
-    else:
-        mode = area
+    if perimeter or area <= 0:
+        print(f"The perimeter / area must be non-negative, please check your values.")
 
-    question = number_checker(f"if {shape} = {mode}, what is {a}?",)
+    return area, perimeter
 
 
+# initialise variables
+variables = []
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 
+# math loop for all problems to solve
+
 while True:
+    # ask user for the shape
     shape = string_checker("What shape are you solving? ", 1, shape_list)
-    formula = math_loop(shape, "xxx")
-    print(formula)
+
+    # might implement solving for unknowns
+    # I is so the loop can run
+    i = 0
+    solving_for = number_checker("How many sides do you know for the shape? ", "integer")
+
+    while i != solving_for:
+        i += 1
+        value = number_checker("Enter your value: ", "float")
+        variables.append(value)
+
+        # prints are for testing purposes
+        print(value)
+        print(i)
+        print(solving_for)
+
+    print("loop is finished")
+
+    # calculate the shape's area / perimeter
+    formula = formula_check(shape, "xxx")
