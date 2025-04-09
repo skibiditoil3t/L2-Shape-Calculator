@@ -59,7 +59,7 @@ def string_checker(question, num_letters, valid_ans_list):
 
 
 def number_checker(question, exit_code=None, num_type=None):
-    """"checks if an integer is more than zero"""
+    """checks if an integer is more than zero"""
 
     error = "Enter a number more than zero."
     change_to = float
@@ -129,6 +129,9 @@ def formula_check(response, exit_code):
 
 
 # initialise variables
+
+# lists
+actual_variables = []
 variables = []
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 
@@ -138,16 +141,12 @@ while True:
     # ask user for the shape
     shape = string_checker("What shape are you solving? ", 1, shape_list)
 
-    if shape == "circle" or "square":
-        a = number_checker("Enter the value: ")
-    elif shape == "rectangle":
-        a = number_checker("Enter the value of the 1st side: ")
-        b = number_checker("Enter the value of the 2nd side: ")
-    
+    for variables in range(4):
+        length = number_checker("Enter the length's value: ", "")
+        variables.append(length)
 
-
-    print("loop is finished")
+    a, b, c, d = variables
 
     # calculate the shape's area / perimeter
-    formula = formula_check(shape, "xxx")
+    formula = formula_check(shape, "")
     print("you chose", shape, "\n")
