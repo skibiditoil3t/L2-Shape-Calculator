@@ -70,8 +70,9 @@ def number_checker(question, exit_code=None, num_type=None):
 
     while True:
         response = input(question).lower()
+
         if response == exit_code:
-            return response
+            return str(response)
 
         try:
             # change the response to an integer and check that it's more than zero
@@ -122,8 +123,9 @@ def formula_check(response, exit_code):
         area = ((a + b) / 2) * c
         perimeter = a + b + c + d
 
-    # if perimeter or area <= 0:
-    #     print(f"The perimeter / area must be non-negative, please check your values.")
+    if perimeter or area <= 0:
+        print(f"The perimeter / area must be non-negative or not equal to 0, "
+              f"please check your values.\n")
 
     return area, perimeter
 
@@ -131,7 +133,6 @@ def formula_check(response, exit_code):
 # initialise variables
 
 # lists
-actual_variables = []
 variables = []
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 
@@ -141,12 +142,29 @@ while True:
     # ask user for the shape
     shape = string_checker("What shape are you solving? ", 1, shape_list)
 
-    for variables in range(4):
-        length = number_checker("Enter the length's value: ", "")
+    # Explain it was something to do with for loop? Crazy, I know.
+    for i in range(4):
+        length = number_checker("Enter the length's value: ", "xxx")
+
+        if length == "xxx":
+            break
+
+        # for testing purposes, include in debugging slide
+        print("variables", variables)
         variables.append(length)
 
+    n = len(variables)
+    print(n)
+
+    # if missing 4 sides, put in n variables as substitutes
+    # solves code list error
+    if len(variables) < 4:
+        for variables in range(4 - n):
+            variables.append(0)
+
     a, b, c, d = variables
+    print(variables)
 
     # calculate the shape's area / perimeter
-    formula = formula_check(shape, "")
+    formula = formula_check(shape, "xxx")
     print("you chose", shape, "\n")
