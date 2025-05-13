@@ -1,7 +1,19 @@
 import math
 
 
-# import random
+# Functions go here
+def make_statement(statement, decoration):
+    """Emphasises headings by adding decoration
+    at the start and end"""
+
+    return f"{decoration * 3} {statement} {decoration * 3}"
+
+
+def instruction():
+    print(make_statement("instructions", "="))
+
+    print("instructions are here yo")
+    return
 
 
 def yes_no(question):
@@ -28,31 +40,38 @@ def string_checker(question, num_letters, valid_ans_list):
         if response == "xxx":
             return response
 
-        for item in valid_ans_list:
+        # iterates through every item in a list and checks
+        # if it matches user's response
+        for i in valid_ans_list:
 
-            if response == item:
-                return item
+            if response == i:
+                return i
 
             elif response == "tri":
-                item = "triangle"
-                return item
+                i = "triangle"
+                return i
 
             elif response == "tra":
-                item = "trapezium"
-                return item
+                i = "trapezium"
+                return i
 
-            elif response == item[:num_letters]:
-                return item
+            elif response == i[:num_letters]:
+                return i
 
             elif response == "t":
+
+                if response == "t" and len(shape_setting) > 0:
+                    return shape_setting[0]
 
                 option = yes_no("Default shape is triangle. Change to trapezium? ")
 
                 if option == "yes":
                     setting = "trapezium"
+                    shape_setting.append(setting)
                     return setting
                 else:
                     setting = "triangle"
+                    shape_setting.append(setting)
                     return setting
 
         print(f"Please choose an option from {valid_ans_list}\n")
@@ -88,30 +107,35 @@ def number_checker(question, exit_code=None, num_type=None):
 
 
 def formula_check(response, exit_code):
-    """calculates the chosen shape by their formula"""
+    """calculates the user's shape by the shape's according formula"""
 
-    if response == exit_code:
+    if response == exit_code or exit_code in variables:
         return response
 
     perimeter = 0
     area = 0
     hypotenuse = 0
 
-    # will replace values with random.randint()
-    # and phrase question later on
     if response == "circle":
         perimeter = math.pi * (a * 2)
         area = math.pi * (a ** 2)
 
-    # perhaps have 3 different types of triangles aka
-    # right-angled, no 3rd side triangle (for perimeter question),
-    # 3 side triangles
+    # The type of Triangle calculated
+    # is determined by how many sides the user gave
+    # (i.e 2 sides = Right-angled, 3 sides = Heron's law needed)
 
     elif response == "triangle":
-        triangle_sides = number_checker("Right-Angled? ")
-        if triangle_sides == "yes":
+
+        if (a and b == float) and c + d == 0:
+            print("Right-angled Triangle")
             area = 1 / 2 * a * b
-            hypotenuse = math.sqrt(a**2 + b**2)
+            hypotenuse = math.sqrt(a ** 2 + b ** 2)
+            perimeter = a + b + hypotenuse
+        else:
+            print("3 Sided Triangle")
+            s = (a + b + c) / 2
+            area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+            perimeter = a + b + c
 
     elif response == "rectangle":
         area = ((a ** 2) * (b ** 2))
@@ -123,47 +147,75 @@ def formula_check(response, exit_code):
 
     elif response == "trapezium":
         area = ((a + b) / 2) * c
-        perimeter = a + b + c + d
+        if d == float:
+            perimeter = a + b + c + d
+        else:
+            perimeter = "N/A"
 
     elif perimeter or area <= 0:
         print(f"The perimeter / area must be non-negative or not equal to 0, "
               f"please check your values.\n")
 
-    print(perimeter)
-    print(area)
+    print("area:", area)
+    print("perimeter:", perimeter)
+    print("hypotenuse", hypotenuse)
     return area, perimeter, hypotenuse
 
 
 # initialise variables
+n = 0
 
 # lists
-variables = []
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
+shape_setting = []
+
+# Ask user if they want instructions
+want_instructions = yes_no("Do you want instructions?")
+
+if want_instructions == "yes":
+    instruction()
+
 
 # math loop for all problems to solve
-
 while True:
+
+    # empty list to put variables in, prevents 'too many unpacked' error
+    variables = []
+
     # ask user for the shape
     shape = string_checker("What shape are you solving? ", 1, shape_list)
     print(shape)
 
-    # Explain it was something to do with for loop? Crazy, I know.
-    for i in range(4):
-        length = number_checker("Enter the length's value: ", "xxx")
+    if shape == "circle" or "square":
+        n = 1
+    elif shape == "rectangle":
+        n = 2
+    elif shape == "triangle" or "trapezium":
+        n = 3
+    else:
+        shape_setting = []
+        continue
 
-        if length == "xxx":
-            break
-
+    print(n)
+    # Runs loop 'n' amount of times
+    for item in range(n):
+        length = number_checker("Length of the side(s): ", 'xxx')
         variables.append(length)
 
+    if shape == "trapezium" and n == "3":
+        d = number_checker("4th Side?: ", 'xxx')
+
+    # checks how many variables users put
     n = len(variables)
 
-    # if not all 4 sides present, put in n variables as substitutes
+    # if not all 4 sides present, put in 'n' amount of zeros
+    # prevents 'no variable to unpack' error
     if n < 4:
-        for i in range(4 - n):
+        for item in range(4 - n):
             variables.append(0)
 
     a, b, c, d = variables
+    print(variables)
 
     # calculate the shape's area / perimeter
     formula = formula_check(shape, "xxx")
