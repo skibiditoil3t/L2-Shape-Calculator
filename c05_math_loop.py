@@ -31,7 +31,7 @@ def yes_no(question):
 
 
 def string_checker(question, num_letters, valid_ans_list):
-    """"checks that users enter the full word
+    """checks that users enter the full word
     or the 'n' letter/s of a word from a list of valid responses"""
 
     while True:
@@ -63,7 +63,7 @@ def string_checker(question, num_letters, valid_ans_list):
                 if response == "t" and len(shape_setting) > 0:
                     return shape_setting[0]
 
-                option = yes_no("Default shape for 't' is triangle. Change to trapezium? ")
+                option = yes_no("\nDefault shape for 't' is triangle. Change to trapezium? ")
 
                 if option == "yes":
                     setting = "trapezium"
@@ -122,25 +122,25 @@ def formula_check(response, exit_code):
 
     # The type of Triangle calculated
     # is determined by how many sides the user gave
-    # (i.e 2 sides = Right-angled, 3 sides = Heron's law needed)
+    # (2 sides given = Right-angled, 3 sides given = Heron's law)
 
     elif response == "triangle":
-
         if (a and b > 0) and c + d == 0:
-            print("Right-angled Triangle")
             area = 1 / 2 * a * b
             hypotenuse = math.sqrt(a ** 2 + b ** 2)
-        else:
-            print("3 Sided Triangle")
+        elif a+b+c > 0:
             s = (a + b + c) / 2
             try:
                 area = math.sqrt(s * (s - a) * (s - b) * (s - c))
                 perimeter = a + b + c
             except ValueError:
-                print(f"Impossible Triangle: {max(variables)} is greater than"
-                      f" the sum of {min(variables)} + {min(variables)}")
+                minimum = [i for i in variables if 0 < i < max(variables)]
+                print(f"\nImpossible Triangle: length [{max(variables)}] is a greater than"
+                      f" the sum of the other 2 lengths {minimum}")
                 area = "N/A"
                 perimeter = "N/A"
+        else:
+            print("Invalid Triangle, only one side given.")
 
     elif response == "rectangle":
         area = ((a ** 2) * (b ** 2))
@@ -157,21 +157,18 @@ def formula_check(response, exit_code):
         else:
             perimeter = "N/A"
 
-    elif perimeter or area <= 0:
-        print(f"The perimeter / area must be non-negative or not equal to 0, "
+
+    if shape in shape_list:
+        if perimeter or area == 0 or sum(variables) == 0:
+            print(f"The area / perimeter must be non-negative or not equal to 0, "
               f"please check your values.\n")
+        else:
+            print("Area: ", area)
+            print("Perimeter: ", perimeter)
 
-    if sum(variables) == 0:
-        area = "N/A"
-        perimeter = "N/A"
-
-    if ((a and b > 0) and c + d == 0) and shape == "triangle":
-        print("area:", area)
-        print("hypotenuse:", hypotenuse)
-
-    if shape == "circle":
-        print("Radius:", area)
-        print("Circumference:", perimeter)
+    elif shape == "triangle" and (a+b > 0 and c+d == 0):
+        print("Area:", area)
+        print("Hypotenuse:", hypotenuse)
 
     return area, perimeter
 
@@ -221,4 +218,3 @@ while True:
 
     # calculate the shape's area / perimeter
     formula = formula_check(shape, "xxx")
-    print("you chose", shape, "\n")
