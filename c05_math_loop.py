@@ -49,10 +49,12 @@ def string_checker(question, num_letters, valid_ans_list):
 
             elif response == "tri":
                 i = "triangle"
+                shape_setting.insert(0, i)
                 return i
 
             elif response == "tra":
                 i = "trapezium"
+                shape_setting.insert(0, i)
                 return i
 
             elif response == i[:num_letters]:
@@ -125,22 +127,25 @@ def formula_check(response, exit_code):
     # (2 sides given = Right-angled, 3 sides given = Heron's law)
 
     elif response == "triangle":
-        if (a and b > 0) and c + d == 0:
+        # checks if 2 variables given and variable 'c' is unknown
+        if (a + b > 0) and c == 0:
             area = 1 / 2 * a * b
             hypotenuse = math.sqrt(a ** 2 + b ** 2)
-        elif a+b+c > 0:
+
+        # checks if user has entered 3 variables and the 2nd one isn't 0
+        elif a+b+c > 0 and b != 0:
             s = (a + b + c) / 2
             try:
                 area = math.sqrt(s * (s - a) * (s - b) * (s - c))
                 perimeter = a + b + c
             except ValueError:
                 minimum = [i for i in variables if 0 < i < max(variables)]
-                print(f"\nImpossible Triangle: length [{max(variables)}] is a greater than"
-                      f" the sum of the other 2 lengths {minimum}")
-                area = "N/A"
-                perimeter = "N/A"
+                print(f"\nImpossible Triangle: Value [{max(variables)}] is greater than"
+                      f" the sum of the other 2 values {minimum}.")
+                area = 0
+                perimeter = 0
         else:
-            print("Invalid Triangle, only one side given.")
+            print("Invalid Triangle: Only one value given.")
 
     elif response == "rectangle":
         area = ((a ** 2) * (b ** 2))
@@ -155,20 +160,19 @@ def formula_check(response, exit_code):
         if d > 0:
             perimeter = a + b + c + d
         else:
-            perimeter = "N/A"
+            perimeter = 0
 
+    if shape == "triangle" and (a+b > 0 and c+d == 0):
+        print("Area:", area)
+        print("Hypotenuse:", hypotenuse)
 
-    if shape in shape_list:
-        if perimeter or area == 0 or sum(variables) == 0:
+    elif shape in shape_list:
+        if perimeter <= 0 or area <= 0 or sum(variables) <= 0:
             print(f"The area / perimeter must be non-negative or not equal to 0, "
               f"please check your values.\n")
         else:
-            print("Area: ", area)
+            print("\nArea: ", area)
             print("Perimeter: ", perimeter)
-
-    elif shape == "triangle" and (a+b > 0 and c+d == 0):
-        print("Area:", area)
-        print("Hypotenuse:", hypotenuse)
 
     return area, perimeter
 
@@ -196,10 +200,18 @@ while True:
     shape = string_checker("What shape are you solving? ", 1, shape_list)
 
     if shape == "xxx":
-        continue
+        break
+    elif shape == "square" or shape == "circle":
+        n = 1
+    elif shape == "rectangle":
+        n = 2
+    elif shape == "triangle":
+        n = 3
+    elif shape == "trapezium":
+        n = 4
 
     # Runs loop 'n' amount of times
-    for item in range(4):
+    for item in range(n):
         length = number_checker("Length of the side(s): ", 'xxx')
         if length == "xxx":
             break
