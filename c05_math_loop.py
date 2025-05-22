@@ -45,6 +45,8 @@ def string_checker(question, num_letters, valid_ans_list):
         for i in valid_ans_list:
 
             if response == i:
+                if response == "triangle" or response == "trapezium":
+                    shape_setting.insert(0, i)
                 return i
 
             elif response == "tri":
@@ -127,8 +129,8 @@ def formula_check(response, exit_code):
     # (2 sides given = Right-angled, 3 sides given = Heron's law)
 
     elif response == "triangle":
-        # checks if 2 variables given and variable 'c' is unknown
-        if (a + b > 0) and c == 0:
+        # checks if 2 variables > 0 are given and variable 'c' = 0
+        if (a > 0 and b > 0) and c == 0:
             area = 1 / 2 * a * b
             hypotenuse = math.sqrt(a ** 2 + b ** 2)
 
@@ -162,17 +164,26 @@ def formula_check(response, exit_code):
         else:
             perimeter = 0
 
-    if shape == "triangle" and (a+b > 0 and c+d == 0):
-        print("Area:", area)
-        print("Hypotenuse:", hypotenuse)
+    string_area = str(round(area, 2))
+    string_perimeter = str(round(perimeter, 2))
+    string_hypotenuse = str(round(hypotenuse, 2))
+
+    if shape == "triangle" and ((a > 0 and b > 0) and c+d == 0):
+        print("\nArea:", string_area)
+        print("Hypotenuse:", string_hypotenuse)
+
+    elif shape == "trapezium" and (a+b+c > 0 and d == 0):
+        print("\nArea:", string_area)
+        print("Perimeter: N/A")
 
     elif shape in shape_list:
         if perimeter <= 0 or area <= 0 or sum(variables) <= 0:
             print(f"The area / perimeter must be non-negative or not equal to 0, "
-              f"please check your values.\n")
+              f"please check your values.")
         else:
-            print("\nArea: ", area)
-            print("Perimeter: ", perimeter)
+            print("\nArea: ", string_area)
+            print("Perimeter: ", string_perimeter)
+
 
     return area, perimeter
 
@@ -183,6 +194,9 @@ n = 0
 # lists
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 shape_setting = []
+
+
+# dictionaries to hold
 
 # Ask user if they want instructions
 want_instructions = yes_no("Do you want instructions? ")
@@ -197,7 +211,7 @@ while True:
     variables = []
 
     # ask user for the shape
-    shape = string_checker("What shape are you solving? ", 1, shape_list)
+    shape = string_checker("\nWhat shape are you solving? ", 1, shape_list)
 
     if shape == "xxx":
         break
