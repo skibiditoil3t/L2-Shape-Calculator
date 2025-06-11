@@ -1,7 +1,7 @@
 import math
 import pandas
 from tabulate import tabulate
-from datetime import date
+from datetime import datetime
 
 # Functions go here
 def make_statement(statement, decoration):
@@ -186,31 +186,35 @@ def formula_check(response, exit_code):
             print("\nArea: ", area)
             print("Perimeter: ", perimeter)
 
+
     all_shapes.append(response)
     all_area.append(area)
     all_perimeter.append(perimeter)
+    all_hypotenuse.append(hypotenuse)
 
-
-    return area, perimeter
+    return area, perimeter, hypotenuse
 
 
 # initialise variables
 n = 0
+formula = 0
+loop_ran = 0
 
 # lists
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 shape_setting = []
 
-
 # dictionaries to hold
 all_shapes = []
 all_area = []
 all_perimeter = []
+all_hypotenuse = []
 
 shape_calc_dict = {
     "Shape": all_shapes,
     "Area": all_area,
     "Perimeter": all_perimeter,
+    "Hypotenuse": all_hypotenuse
 }
 
 # Ask user if they want instructions
@@ -259,18 +263,42 @@ while True:
 
     # calculate the shape's area / perimeter
     formula = formula_check(shape, "xxx")
+    loop_ran += 1
 
-# prepare date for proper file format
-today = datetime.today()
+if shape == "xxx" and loop_ran > 0:
+    # prepare date for proper file format
+    today = datetime.today()
 
-# get day / month / year as individual strings
-day = today.strftime("%d")
-month = today.strftime("%m")
-year = today.strftime("%Y")
+    # get day / month / year as individual strings
+    day = today.strftime("%d")
+    month = today.strftime("%m")
+    year = today.strftime("%Y")
 
-# headings / strings
-main_heading_string = make_statement(f"Math Calculator")
+    # headings / strings
+    main_heading_string = make_statement(f"Math Calculator, {day} / {month} / {year}", "=")
 
-shape_calc_frame = pandas.DataFrame(shape_calc_dict)
+    shape_calc_frame = pandas.DataFrame(shape_calc_dict)
+    shape_calc_string = tabulate(shape_calc_frame, headers='keys',
+                                 tablefmt='psql', showindex=False)
 
-print(shape_calc_frame.to_string(index=False))
+    # list of strings to be outputted / written to file
+    to_write = ["", main_heading_string, "\n", shape_calc_string]
+    # print area
+    print()
+    for item in to_write:
+        print(item)
+
+    # create file to hold data (add .txt extension)
+    # prepare date for proper file format
+
+    file_name = f"Math_Calculator_{year}_{month}_{day}"
+    write_to = "{}.txt".format(file_name)
+
+    text_file = open(write_to, "w+")
+
+    # write the item to file
+    for item in to_write:
+        text_file.write(item)
+        text_file.write("\n")
+else:
+    print("No shape was calculated.")
