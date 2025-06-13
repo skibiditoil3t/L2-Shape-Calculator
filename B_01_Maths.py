@@ -66,6 +66,7 @@ def string_checker(question, num_letters, valid_ans_list):
 
             elif response == "t":
 
+                # Returns the setting
                 if response == "t" and len(shape_setting) > 0:
                     return shape_setting[0]
 
@@ -73,25 +74,20 @@ def string_checker(question, num_letters, valid_ans_list):
 
                 if option == "yes":
                     setting = "trapezium"
-                    shape_setting.insert(0, setting)
-                    return setting
                 else:
                     setting = "triangle"
-                    shape_setting.insert(0, setting)
-                    return setting
+
+                shape_setting.insert(0, setting)
+                return setting
 
         print(f"Please choose an option from {valid_ans_list}\n")
 
 
-def number_checker(question, exit_code=None, num_type=None):
+def number_checker(question, exit_code=None):
     """checks if an integer is more than zero"""
 
     error = "Enter a number more than zero."
     change_to = float
-
-    if num_type == "integer":
-        error = "Enter an integer more than zero."
-        change_to = int
 
     while True:
         response = input(question).lower()
@@ -120,8 +116,8 @@ def formula_check(response, exit_code):
 
     perimeter = 0
     area = 0
-    hypotenuse = 0
 
+    # Match response with shape and calculate accordingly
     if response == "circle":
         perimeter = math.pi * (a * 2)
         area = math.pi * (a ** 2)
@@ -132,9 +128,10 @@ def formula_check(response, exit_code):
 
     elif response == "triangle":
         # checks if 2 variables > 0 are given and variable 'c' = 0
+        # assumes it's a right-angled triangle
         if (a > 0 and b > 0) and c == 0:
             area = 1 / 2 * a * b
-            hypotenuse = math.sqrt(a ** 2 + b ** 2)
+            perimeter = math.sqrt(a ** 2 + b ** 2)
 
         # checks if user has entered 3 variables and the 2nd one isn't 0
         elif a+b+c > 0 and b != 0:
@@ -142,6 +139,8 @@ def formula_check(response, exit_code):
             try:
                 area = math.sqrt(s * (s - a) * (s - b) * (s - c))
                 perimeter = a + b + c
+
+            # if 2 of the sides are smaller than 1 side, give user an error
             except ValueError:
                 minimum = [i for i in variables if 0 < i < max(variables)]
                 print(f"\nImpossible Triangle: Value [{max(variables)}] is greater than"
@@ -149,6 +148,7 @@ def formula_check(response, exit_code):
                 area = 0
                 perimeter = 0
         else:
+            # If only one side is given, we only print out the error.
             print("Invalid Triangle: Only one value given.")
 
     elif response == "rectangle":
@@ -168,11 +168,14 @@ def formula_check(response, exit_code):
 
     if shape == "triangle" and ((a > 0 and b > 0) and c+d == 0):
         print("\nArea:", area)
-        print("Hypotenuse:", hypotenuse)
+        print("Hypotenuse:", perimeter)
 
+    # If the 4th side isn't present in a trapezium,
+    # the programme assumes the user only wants to solve for area.
     elif shape == "trapezium" and (a > 0 and b > 0 and c > 0 and d == 0):
         print("\nArea:", area)
-        print("Perimeter: N/A")
+        perimeter = "N/A"
+        print("Perimeter:", perimeter)
 
     elif shape == "circle":
         print("\nArea:", area)
@@ -182,6 +185,8 @@ def formula_check(response, exit_code):
         if perimeter <= 0 or area <= 0 or sum(variables) <= 0:
             print(f"The area / perimeter must be non-negative or not equal to 0, "
               f"please check your values.")
+            area = "N/A"
+            perimeter = "N/A"
         else:
             print("\nArea: ", area)
             print("Perimeter: ", perimeter)
@@ -190,9 +195,8 @@ def formula_check(response, exit_code):
     all_shapes.append(response)
     all_area.append(area)
     all_perimeter.append(perimeter)
-    all_hypotenuse.append(hypotenuse)
 
-    return area, perimeter, hypotenuse
+    return area, perimeter
 
 
 # initialise variables
@@ -208,13 +212,11 @@ shape_setting = []
 all_shapes = []
 all_area = []
 all_perimeter = []
-all_hypotenuse = []
 
 shape_calc_dict = {
     "Shape": all_shapes,
     "Area": all_area,
     "Perimeter": all_perimeter,
-    "Hypotenuse": all_hypotenuse
 }
 
 # Ask user if they want instructions
@@ -232,6 +234,7 @@ while True:
     # ask user for the shape
     shape = string_checker("\nWhat shape are you solving? ", 1, shape_list)
 
+    # 'n' is how many times we need to ask in order to calculate area & perimeter
     if shape == "xxx":
         break
     elif shape == "square" or shape == "circle":
@@ -245,7 +248,7 @@ while True:
 
     # Runs loop 'n' amount of times
     for item in range(n):
-        length = number_checker("Length of the side(s): ", 'xxx')
+        length = number_checker("Length of the side / base / height: ", 'xxx')
         if length == "xxx":
             break
         variables.append(length)
