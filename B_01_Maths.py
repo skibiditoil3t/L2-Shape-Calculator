@@ -14,7 +14,21 @@ def make_statement(statement, decoration):
 def instruction():
     print(make_statement("instructions", "="))
 
-    print("instructions are here yo")
+    print("Welcome to the MHS Maths Shape Calculator!"
+          ""
+          "Choose from 5 shapes:"
+          "Circle, triangle, rectangle, square and trapezium!"
+          ""
+          "The full name is not required, the first letter / first three letters work for every shape."
+          "If you enter 't', you'll be asked to change whether it defaults to triangle or trapezium."
+          "This setting can be overwritten even after it's set, simply type in triangle or trapezium and"
+          "'t' will default to that shape (eg: 't' was set to triangle, type in 'tra' to set 't' to trapezium)." 
+          ""
+          "Once you've chosen a shape, you'll be prompted to enter the length of the side /"
+          "base / height."
+          ""
+          "Once you've completed that, you'll be able to view the shapes you've calculated on your computer."
+          )
     return
 
 
@@ -46,36 +60,25 @@ def string_checker(question, num_letters, valid_ans_list):
         # if it matches user's response
         for i in valid_ans_list:
 
+            if response == "triangle" or response == "trapezium":
+                shape_setting.insert(0, i)
+
             if response == i:
-                if response == "triangle" or response == "trapezium":
-                    shape_setting.insert(0, i)
                 return i
 
-            elif response == "tri":
-                i = "triangle"
-                shape_setting.insert(0, i)
-                return i
-
-            elif response == "tra":
-                i = "trapezium"
-                shape_setting.insert(0, i)
-                return i
-
-            elif response == i[:num_letters]:
+            elif response == i[:num_letters] or response == i[:3]:
                 return i
 
             elif response == "t":
 
-                # Returns the setting
+                # Returns the setting for 't' if it's already there
                 if response == "t" and len(shape_setting) > 0:
                     return shape_setting[0]
 
                 option = yes_no("\nDefault shape for 't' is triangle. Change to trapezium? ")
-
+                setting = "triangle"
                 if option == "yes":
                     setting = "trapezium"
-                else:
-                    setting = "triangle"
 
                 shape_setting.insert(0, setting)
                 return setting
