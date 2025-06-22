@@ -12,22 +12,24 @@ def make_statement(statement, decoration):
 
 
 def instruction():
-    print(make_statement("instructions", "="))
+    print("\n")
+    print(make_statement("Instructions", "="))
 
-    print("Welcome to the MHS Maths Shape Calculator!"
-          ""
-          "Choose from 5 shapes:"
-          "Circle, triangle, rectangle, square and trapezium!"
-          ""
-          "The full name is not required, the first letter / first three letters work for every shape."
-          "If you enter 't', you'll be asked to change whether it defaults to triangle or trapezium."
-          "This setting can be overwritten even after it's set, simply type in triangle or trapezium and"
-          "'t' will default to that shape (eg: 't' was set to triangle, type in 'tra' to set 't' to trapezium)." 
-          ""
-          "Once you've chosen a shape, you'll be prompted to enter the length of the side /"
-          "base / height."
-          ""
-          "Once you've completed that, you'll be able to view the shapes you've calculated on your computer."
+    print("\nWelcome to the MHS Maths Shape Calculator!"
+          "\n"
+          "\nChoose from 5 shapes:"
+          "\n'c' is circle | 's' is square | 'r' is rectangle | 't' is triangle or trapezium ."
+          "\n[Alternate to 't' (and every other shape) is the first 3 letters]"
+          "\n[E.G. 'Tri' --> Triangle, 'Tra' --> Trapezium]"
+          "\n['t' can be overwritten by the first 3 letters of either triangle or trapezium]."
+          "\n"
+          "\nOnce you've chosen a shape, you'll be prompted to enter the length of the side /"
+          "\nbase / height."
+          "\n"
+          "\nOnce you've completed all of the above, "
+          "\nyou'll be able to view the shapes you've calculated on your computer."
+          "\n"
+          "\n"
           )
     return
 
@@ -77,14 +79,13 @@ def string_checker(question, num_letters, valid_ans_list):
                 if option == "yes":
                     setting = "trapezium"
 
-                shape_setting.insert(0, setting)
                 return setting
 
         print(f"Please choose an option from {valid_ans_list}\n")
 
 
 def number_checker(question, exit_code=None):
-    """checks the value of a float is greater than zero"""
+    """Checks that the float value given is greater than zero"""
 
     error = "Enter a number greater than zero."
 
@@ -166,33 +167,34 @@ def formula_check(response, exit_code):
     # output area for shapes
     if shape in shape_list:
 
-        if perimeter <= 0 or area <= 0 or sum(variables) <= 0:
-            print(f"The area / perimeter must be non-negative or not equal to 0, "
-              f"please check your values.")
-            area = "N/A"
-            perimeter = "N/A"
-
-        elif shape == "triangle" and b != 0 and c == 0:
-            print("\nArea:", area,
+        if shape == "triangle" and b != 0 and c == 0:
+            string = ("\nArea:", area,
                   "Hypotenuse:", perimeter)
 
         # If the 4th side isn't given in a trapezium,
         # the programme assumes the user only wants to solve for area.
         elif shape == "trapezium" and (a and b and c) > 0 and d == 0:
             perimeter = "N/A"
-            print("\nArea:", area,
+            string = ("\nArea:", area,
                   "Perimeter:", perimeter)
 
         elif shape == "circle":
-            print("\nArea:", area,
+            string = ("\nArea:", area,
                   "Circumference:", perimeter)
-
-        else:
-            print("\nArea:", area,
-                  "Perimeter:", perimeter)
-
+        elif perimeter <= 0 and area <= 0:
+            string = (f"The area / perimeter must be non-negative or not equal to 0, "
+          f"please check your values.")
 
 
+    string = ("\nArea:", area,
+              "Perimeter:", perimeter)
+
+    if perimeter <= 0 or area <= 0:
+
+        area = "N/A"
+        perimeter = "N/A"
+
+    print(string)
 
     all_shapes.append(response)
     all_area.append(area)
@@ -233,8 +235,8 @@ while True:
     # ask user for the shape
     shape = string_checker("\nWhat shape are you solving? ", 1, shape_list)
 
-    # 'n' is how many times we need to ask the user for the side / base / height
-    # of their shape
+    # 'n' is how many times we need to ask the user for the side / base / height of their shape
+    # shape_setting.insert works as an optimized way to overwrite 't'
     if shape == "xxx":
         break
     elif shape == "square" or shape == "circle":
@@ -242,15 +244,24 @@ while True:
     elif shape == "rectangle":
         n = 2
     elif shape == "triangle":
-        n = 3
+        sides = yes_no("Do you have 3 sides?")
+
+        if sides == "yes":
+            n = 3
+
+        n = 2
+        shape_setting.insert(0, shape)
     else:
         n = 4
+        shape_setting.insert(0, shape)
 
     # runs loop 'n' amount of times
     for item in range(n):
         length = number_checker("Length of the side / base / height: ", 'xxx')
+
         if length == "xxx":
             break
+
         variables.append(length)
 
     # checks how many variables users put
