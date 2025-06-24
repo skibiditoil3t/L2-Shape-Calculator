@@ -10,8 +10,9 @@ def make_statement(statement, decoration):
 
     return f"{decoration * 3} {statement} {decoration * 3}"
 
-
 def instruction():
+    """Gives the instructions to users"""
+
     print("\n")
     print(make_statement("Instructions", "="))
 
@@ -32,7 +33,6 @@ def instruction():
           "\n"
           )
     return
-
 
 def yes_no(question):
     """check that users enter yes / y or no / n to a question"""
@@ -83,7 +83,6 @@ def string_checker(question, num_letters, valid_ans_list):
 
         print(f"Please choose an option from {valid_ans_list}\n")
 
-
 def number_checker(question, exit_code=None):
     """Checks that the float value given is greater than zero"""
 
@@ -109,7 +108,8 @@ def number_checker(question, exit_code=None):
 
 
 def formula_check(response, exit_code):
-    """calculates the user's shape by the shape's according formula"""
+    """calculates the user's shape by the shape's according formula
+        and outputs the results"""
 
     if response == exit_code:
         return response
@@ -164,37 +164,30 @@ def formula_check(response, exit_code):
         if d > 0:
             perimeter = a + b + c + d
 
+
     # output area for shapes
+
     if shape in shape_list:
 
-        if shape == "triangle" and b != 0 and c == 0:
-            string = ("\nArea:", area,
-                  "Hypotenuse:", perimeter)
+        if shape == "triangle":
+            if b != 0 and c == 0:
+                print(f"Area: {area}, Perimeter: N/A")
+            print(f"Area: {area}, Perimeter: {perimeter}")
 
         # If the 4th side isn't given in a trapezium,
         # the programme assumes the user only wants to solve for area.
-        elif shape == "trapezium" and (a and b and c) > 0 and d == 0:
-            perimeter = "N/A"
-            string = ("\nArea:", area,
-                  "Perimeter:", perimeter)
+        elif shape == "trapezium":
+            if d < 0:
+                perimeter = "N/A"
+            print(f"Area: {area}, Perimeter: {perimeter}")
 
         elif shape == "circle":
-            string = ("\nArea:", area,
-                  "Circumference:", perimeter)
+            print(f"Area: {area}, Circumference: {perimeter}")
+
         elif perimeter <= 0 and area <= 0:
-            string = (f"The area / perimeter must be non-negative or not equal to 0, "
-          f"please check your values.")
+            print("The area / perimeter must be non-negative or not equal to 0, "
+                  "please check your values.")
 
-
-    string = ("\nArea:", area,
-              "Perimeter:", perimeter)
-
-    if perimeter <= 0 or area <= 0:
-
-        area = "N/A"
-        perimeter = "N/A"
-
-    print(string)
 
     all_shapes.append(response)
     all_area.append(area)
@@ -227,6 +220,7 @@ if want_instructions == "yes":
     instruction()
 
 # math loop starts
+
 while True:
 
     # empty list to put variables in, prevents 'too many unpacked' error
@@ -244,7 +238,7 @@ while True:
     elif shape == "rectangle":
         n = 2
     elif shape == "triangle":
-        sides = yes_no("Do you have 3 sides?")
+        sides = yes_no("Do you have 3 sides? ")
 
         if sides == "yes":
             n = 3
@@ -257,14 +251,14 @@ while True:
 
     # runs loop 'n' amount of times
     for item in range(n):
-        length = number_checker("Length of the side / base / height: ", 'xxx')
+        length = number_checker("Length of the ", 'xxx')
 
         if length == "xxx":
             break
 
         variables.append(length)
 
-    # checks how many variables users put
+    # checks how many variables the user has entered
     n = len(variables)
 
     # if not all 4 sides present, put in 'n' amount of zeros
