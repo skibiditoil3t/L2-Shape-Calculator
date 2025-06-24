@@ -171,8 +171,8 @@ def formula_check(response, exit_code):
         if d > 0:
             perimeter = a + b + c + d
 
-    area = round(area, 4)
-    perimeter = round(perimeter, 4)
+    area = math.ceil(area / 3) * 3
+    perimeter = math.ceil(perimeter / 3) * 3
 
     # output area for shapes
 
