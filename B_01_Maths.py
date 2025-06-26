@@ -1,3 +1,4 @@
+
 import math
 import pandas
 from tabulate import tabulate
@@ -22,21 +23,21 @@ def instruction():
 
 Welcome to the MHS Maths Shape Calculator!
 
-To start, choose from 5 shapes:
-'c' / circle 
-'s' / square 
-'r' / rectangle 
-'t' / triangle or trapezium.
+To start, you'll be prompted to choose from 5 shapes:
+'c' / Circle 
+'s' / Square 
+'r' / Rectangle 
+'t' / Triangle or Trapezium
 
 [Alternate to 't' (and every other shape) is the first 3 letters]
 [E.G. 'Tri' --> Triangle, 'Tra' --> Trapezium]
 ['t' can be overwritten by the first 3 letters of either triangle or trapezium].
 
-Once you've chosen a shape, you'll be prompted to enter the length of the side /
-base / height.
+Once you've chosen a shape, you'll be prompted to enter the length for your sides. 
+'xxx' is your exit code if you only need to enter some sides!
 
-Once you've completed all of the above, 
-you'll be able to view the shapes you've calculated on your computer.
+When you're finished calculating, enter 'xxx' to exit when you're prompted to enter a shape
+and view the 'Math_Results' file in your computer!
 
         ''')
 
@@ -137,24 +138,23 @@ def formula_check(response, exit_code):
         area = math.pi * (a ** 2)
 
     elif response == "triangle":
-        if b != 0:
-            
+        if n == 2:
             area = 1 / 2 * a * b
-            perimeter = math.sqrt(a ** 2 + b ** 2)
 
-            if c != 0:
-                s = (a + b + c) / 2
-                try:
-                    area = math.sqrt(s * (s - a) * (s - b) * (s - c))
-                    perimeter = a + b + c
+        elif n == 3:
+            s = (a + b + c) / 2
 
-                # if 2 of the sides are smaller than 1 side, give user an error
-                except ValueError:
-                    minimum = [i for i in variables if 0 < i < max(variables)]
-                    print(f"\nImpossible Triangle: Value [{max(variables)}] is greater than"
-                          f" the sum of the other 2 values {minimum}.")
-                    area = 0
-                    perimeter = 0
+            try:
+                area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+                perimeter = a + b + c
+
+            # if 2 of the sides are smaller than 1 side, give user an error
+            except ValueError:
+                minimum = [i for i in variables if 0 < i < max(variables)]
+                print(f"\nImpossible Triangle: Value [{max(variables)}] is greater than"
+                      f" the sum of the other 2 values {minimum}.")
+                area = 0
+                perimeter = 0
 
         # If only one side is given, we only print out the error.
         else:
@@ -171,8 +171,6 @@ def formula_check(response, exit_code):
     # need to check which is height and the parallel sides
     elif response == "trapezium":
         area = ((a + b) / 2) * c
-        if d > 0:
-            perimeter = a + b + c + d
 
     area = float(f'{area:.1g}')
     perimeter = float(f'{perimeter:.1g}')
@@ -180,34 +178,28 @@ def formula_check(response, exit_code):
     # output area for shapes
 
     if shape in shape_list:
+        results = f"Area: {area} \nPerimeter: {perimeter}"
 
         if shape == "triangle":
-            if b != 0 and c == 0:
+            if n == 2:
                 perimeter = "N/A"
-                print(f"Area: {area} \nPerimeter: N/A")
-            else:
-                if area == 0:
-                    area = "N/A"
-                print(f"Area: {area} \nPerimeter: {perimeter}")
+            elif area == 0:
+                area = "N/A"
+                results = "Degenerate Triangle \n(2 Sides aren't greater than the 3rd side, therefore Area = 0)."
 
         # If the 4th side isn't given in a trapezium,
         # the programme assumes the user only wants to solve for area.
         elif shape == "trapezium":
-            if d < 0:
-                perimeter = "N/A"
-            print(f"Area: {area} "
-                  f"\nPerimeter: {perimeter}")
+            perimeter = "N/A"
+
+            if d > 0:
+                perimeter = a + b + c + d
+                results = f"Area: {area} \nPerimeter: {perimeter}"
 
         elif shape == "circle":
-            print(f"Area: {area} "
-                  f"\nCircumference: {perimeter}")
+            results = f"Area: {area} \nCircumference: {perimeter}"
 
-        elif perimeter <= 0 and area <= 0:
-            print("The area and perimeter must be non-negative or not equal to 0, "
-                  "please check your values.")
-        else:
-            print(f"Area: {area} "
-                  f"\nPerimeter: {perimeter}")
+        print(f"\n{results}")
 
     all_shapes.append(response)
     all_area.append(area)
@@ -221,7 +213,7 @@ loop_ran = 0
 
 # lists
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
-string_variables = ['a',  'b', 'c', 'd']
+string_variables = ['a', 'b', 'c', 'd']
 shape_setting = []
 all_shapes = []
 all_area = []
@@ -235,10 +227,10 @@ shape_calc_dict = {
 }
 
 # ask user if they want instructions
-# want_instructions = yes_no("Do you want instructions? ")
-#
-# if want_instructions == "yes":
-#     instruction()
+want_instructions = yes_no("Do you want instructions? ")
+
+if want_instructions == "yes":
+    instruction()
 
 # math loop starts
 
@@ -341,7 +333,7 @@ if shape == "xxx" and loop_ran > 0:
     # create file to hold data (add .txt extension)
     # prepare date for proper file format
 
-    file_name = f"Math_Calculator_{year}_{month}_{day}"
+    file_name = f"Math_Results_{year}_{month}_{day}"
     write_to = "{}.txt".format(file_name)
 
     text_file = open(write_to, "w+")
