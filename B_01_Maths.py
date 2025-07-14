@@ -30,13 +30,13 @@ The first 3 letters are accepted for every shape.
 [E.G. 'Tri' --> Triangle, 'Tra' --> Trapezium, etc.]
 
 If you write 't', you'll be prompted to choose either triangle or trapezium. 
-Type the full name / first 3 letters of either those shapes to overwrite this setting.
+Type the full name / first 3 letters of either triangle or trapezium to overwrite this setting.
 
 Once you've chosen a shape, you'll be prompted to enter the length of the side /
 base / height. 
 
-Once you've completed all of the above, 
-you can view a file on your computer that shows the shapes you've calculated.
+When asked to choose another shape, you can enter 'xxx' to exit the programme. 
+A text file will be on your computer and it'll show the shapes you've calculated.
 
         ''')
 
@@ -93,10 +93,15 @@ def string_checker(question, num_letters, valid_ans_list):
         print(f"Please choose an option from {valid_ans_list}\n")
 
 
-def number_checker(question, exit_code=None):
+def number_checker(question, num_type=None, exit_code=None):
     """Checks if the value given is greater than zero"""
 
-    error = "Enter a number greater than zero."
+    error = "Enter an integer greater than zero."
+    change_to = int
+
+    if num_type == "float":
+        error = "Enter a number greater than zero."
+        change_to = float
 
     while True:
         response = input(question).lower()
@@ -104,9 +109,13 @@ def number_checker(question, exit_code=None):
         if response == exit_code:
             return str(response)
 
+        elif num_type == "round":
+            if response == 0:
+                return response
+
         try:
             # change the response to a float and check that it's more than zero
-            response = float(response)
+            response = change_to(response)
 
             if response > 0:
                 return response
@@ -121,11 +130,12 @@ def formula_check(response, exit_code):
     """calculates the user's shape by the shape's according formula
         and outputs the results"""
 
+    # initialise variables
+    area = 0
+    perimeter = 0
+
     if response == exit_code:
         return response
-
-    perimeter = 0
-    area = 0
 
     # match response with shape and calculate area (perimeter too if possible)
     if response == "circle":
@@ -170,41 +180,35 @@ def formula_check(response, exit_code):
         if d > 0:
             perimeter = a + b + c + d
 
-    area = float(f'{area:.2f}')
-    perimeter = float(f'{perimeter:.2f}')
+    round_to = number_checker("Round to: ", "round")
+    area = float(f'{area:.{round_to}f}')
+    perimeter = float(f'{perimeter:.{round_to}f}')
 
     # output area for shapes
+    results = f"Area: {area}\nPerimeter: {perimeter}"
 
     if shape in shape_list:
-
         if shape == "triangle":
             if b != 0 and c == 0:
                 perimeter = "N/A"
-                print(f"Area: {area} \nPerimeter: N/A")
             else:
                 if area == 0:
                     area = "N/A"
                     perimeter = "N/A"
-                print(f"Area: {area} \nPerimeter: {perimeter}")
 
         # If the 4th side isn't given in a trapezium,
         # the programme assumes the user only wants to solve for area.
         elif shape == "trapezium":
             if d < 0:
                 perimeter = "N/A"
-            print(f"Area: {area} "
-                  f"\nPerimeter: {perimeter}")
 
         elif shape == "circle":
-            print(f"Area: {area} "
-                  f"\nCircumference: {perimeter}")
+            results = f"Area: {area} \nCircumference: {perimeter}"
 
         elif perimeter <= 0 and area <= 0:
-            print("The area and perimeter must be non-negative or not equal to 0, "
-                  "please check your values.")
-        else:
-            print(f"Area: {area} "
-                  f"\nPerimeter: {perimeter}")
+            results = ("The area and perimeter must be non-negative or not equal to 0,"
+                      " please check your values.")
+    print(f"\n{results}")
 
     all_shapes.append(response)
     all_area.append(area)
@@ -212,6 +216,50 @@ def formula_check(response, exit_code):
 
     return area, perimeter
 
+
+def area_formula(response):
+
+    if response == "square" or response == "circle":
+        i = 1
+        text_formula = "a^2"
+
+        if response == "circle":
+            text_formula = " \u03c0 * a^2"
+
+    elif response == "rectangle":
+        i = 2
+        text_formula = "a * b"
+
+    elif response == "triangle":
+        i = 3
+        text_formula = ("\U0000221As(s-a)(s-b)(s-c) "
+                   "\n['s' is calculated after a, b and c are given].")
+
+        sides = yes_no("Do you have 3 sides? ")
+
+        if sides == "no":
+            i = 2
+            text_formula = "a * b / 2"
+
+        shape_setting.insert(0, response)
+
+    else:
+        i = 4
+        text_formula = "(a + b / 2) * c"
+
+        height = number_checker("Length of height ('xxx' if no height): ",
+                                "float", "xxx")
+
+        if height == "xxx":
+            text_formula = ("(a + b / 2) * c )  "
+                       "\nSide 'd' is only to calculate perimeter.")
+
+        shape_setting.insert(0, response)
+
+    # gives user the area formula of the shape
+    print(f"\nArea formula: {text_formula}\n")
+
+    return i
 
 # initialise variables
 loop_ran = 0
@@ -247,52 +295,16 @@ while True:
     # ask user for the shape
     shape = string_checker("\nWhat shape are you solving? ", 1, shape_list)
 
-    # 'n' is how many times we need to ask the user for the side / base / height of their shape
-    # shape_setting.insert works as an optimized way to overwrite "t"
     if shape == "xxx":
         break
 
-    elif shape == "square" or shape == "circle":
-        n = 1
-        formula = "a^2"
-        if shape == "circle":
-            formula = "2 * \u03c0 * a"
-
-    elif shape == "rectangle":
-        formula = "a * b"
-        n = 2
-
-    elif shape == "triangle":
-        n = 3
-        formula = ("\U0000221As(s-a)(s-b)(s-c) "
-                   "\n['s' is calculated after a, b and c are given].")
-
-        sides = yes_no("Do you have 3 sides? ")
-
-        if sides == "no":
-            n = 2
-            formula = "a * b / 2"
-
-        shape_setting.insert(0, shape)
-    else:
-        n = 4
-
-        height = ("Length of height: ", "xxx")
-
-        formula = ("(a + b / 2) * c  "
-                   "\nSide 'd' is only to calculate perimeter.")
-
-
-        shape_setting.insert(0, shape)
-
-    # show user the formula and what they need to enter
-    # also initialising loop, so it works for all cases
-    print(f"\nArea formula: {formula}\n")
+    # 'n' is how many times we need to ask the user for the side / base / height of their shape
+    n = area_formula(shape)
     loop_ran = 0
 
     # runs loop 'n' amount of times
     for item in range(n):
-        length = number_checker(f"Length of Side {string_variables[0 + loop_ran]}: ", 'xxx')
+        length = number_checker(f"Length of Side {string_variables[0 + loop_ran]}: ", 'float', 'xxx')
 
         if length == "xxx":
             break
@@ -304,7 +316,6 @@ while True:
     n = len(variables)
 
     # if not all 4 sides present, put in 'n' amount of zeros
-    # prevents 'no variable to unpack' error
     if n < 4:
         for item in range(4 - n):
             variables.append(0)
@@ -315,7 +326,6 @@ while True:
     formula = formula_check(shape, "xxx")
 
 # Output area
-
 if shape == "xxx" and loop_ran > 0:
     # prepare date for proper file format
     today = datetime.today()
