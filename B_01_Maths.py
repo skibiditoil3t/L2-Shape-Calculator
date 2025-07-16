@@ -29,14 +29,14 @@ To start, choose from 5 shapes:
 The first 3 letters are accepted for every shape.
 [E.G. 'Tri' --> Triangle, 'Tra' --> Trapezium, etc.]
 
-If you write 't', you'll be prompted to choose either triangle or trapezium. 
+If you write 't', you'll be prompted to set either triangle or trapezium as 't'. 
 Type the full name / first 3 letters of either triangle or trapezium to overwrite this setting.
 
 Once you've chosen a shape, you'll be prompted to enter the length of the side /
 base / height. 
 
 When asked to choose another shape, you can enter 'xxx' to exit the programme. 
-A text file will be on your computer and it'll show the shapes you've calculated.
+You'll see the shapes you've calculated and a file will be written to your computer.
 
         ''')
 
@@ -65,13 +65,10 @@ def string_checker(question, num_letters, valid_ans_list):
         if response == "xxx":
             return response
 
-        # iterates through every item in a list and
-        # checks if it matches the user's response
+        # iterates through every item in a list and checks
+        # if it matches the user's response
         for i in valid_ans_list:
-            if response == i:
-                return i
-
-            elif response == i[:num_letters] or response == i[:3]:
+            if response == i or response == i[:num_letters] or response == i[:3]:
                 return i
 
             elif response == "t":
@@ -109,15 +106,13 @@ def number_checker(question, num_type=None, exit_code=None):
         if response == exit_code:
             return str(response)
 
-        elif num_type == "round":
-            if response == 0:
-                return response
-
         try:
             # change the response to a float and check that it's more than zero
             response = change_to(response)
 
             if response > 0:
+                return response
+            elif num_type == "round" and response == 0:
                 return response
             else:
                 print(error)
@@ -133,6 +128,7 @@ def formula_check(response, exit_code):
     # initialise variables
     area = 0
     perimeter = 0
+    results = f"Area: {area}\nPerimeter: {perimeter}"
 
     if response == exit_code:
         return response
@@ -157,14 +153,14 @@ def formula_check(response, exit_code):
                 # if 2 of the sides are smaller than 1 side, give user an error
                 except ValueError:
                     minimum = [i for i in variables if 0 < i < max(variables)]
-                    print(f"\nImpossible Triangle: Value [{max(variables)}] is greater than"
+                    results = (f"Impossible Triangle: Value [{max(variables)}] is greater than"
                           f" the sum of the other 2 values {minimum}.")
                     area = 0
                     perimeter = 0
 
         # If only one side is given, we only print out the error.
         else:
-            print("Invalid Triangle: Only one value given.")
+            results = "Invalid Triangle: Only one value given."
 
     elif response == "rectangle":
         area = a * b
@@ -180,12 +176,18 @@ def formula_check(response, exit_code):
         if d > 0:
             perimeter = a + b + c + d
 
-    round_to = number_checker("Round to: ", "round")
-    area = float(f'{area:.{round_to}f}')
-    perimeter = float(f'{perimeter:.{round_to}f}')
-
     # output area for shapes
-    results = f"Area: {area}\nPerimeter: {perimeter}"
+    if area != 0:
+
+        # rounding area and perimeter
+        round_to = number_checker("Round to: ", "round")
+        area = f'{area:.{round_to}f}'
+        perimeter = f'{perimeter:.{round_to}f}'
+
+        # PANDAS area
+        all_shapes.append(response)
+        all_area.append(area)
+        all_perimeter.append(perimeter)
 
     if shape in shape_list:
         if shape == "triangle":
@@ -199,20 +201,12 @@ def formula_check(response, exit_code):
         # If the 4th side isn't given in a trapezium,
         # the programme assumes the user only wants to solve for area.
         elif shape == "trapezium":
-            if d < 0:
+            if d <= 0:
                 perimeter = "N/A"
 
         elif shape == "circle":
             results = f"Area: {area} \nCircumference: {perimeter}"
-
-        elif perimeter <= 0 and area <= 0:
-            results = ("The area and perimeter must be non-negative or not equal to 0,"
-                      " please check your values.")
     print(f"\n{results}")
-
-    all_shapes.append(response)
-    all_area.append(area)
-    all_perimeter.append(perimeter)
 
     return area, perimeter
 
@@ -221,10 +215,10 @@ def area_formula(response):
 
     if response == "square" or response == "circle":
         i = 1
-        text_formula = "a^2"
+        text_formula = "a\u00b2"
 
         if response == "circle":
-            text_formula = " \u03c0 * a^2"
+            text_formula = " \u03c0 * a\u00b2"
 
     elif response == "rectangle":
         i = 2
@@ -245,14 +239,16 @@ def area_formula(response):
 
     else:
         i = 4
-        text_formula = "(a + b / 2) * c"
 
-        height = number_checker("Length of height ('xxx' if no height): ",
+        height = number_checker("Length of height ('xxx' if no height available): ",
                                 "float", "xxx")
 
+        text_formula = ("(a + b / 2) * c )  "
+                        "\nSide 'd' is only to calculate perimeter.")
+
         if height == "xxx":
-            text_formula = ("(a + b / 2) * c )  "
-                       "\nSide 'd' is only to calculate perimeter.")
+            i = 4
+            text_formula = "(a + b / 2) * √[c² - ((b - a)² + c² - d² / (2 * (b - a))²]"
 
         shape_setting.insert(0, response)
 
@@ -326,7 +322,7 @@ while True:
     formula = formula_check(shape, "xxx")
 
 # Output area
-if shape == "xxx" and loop_ran > 0:
+if len(all_shapes) != 0:
     # prepare date for proper file format
     today = datetime.today()
 
