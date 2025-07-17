@@ -18,25 +18,32 @@ def instruction():
     print(make_statement("Instructions", "="))
 
     print('''
+--- HOW TO ---
 Welcome to the MHS Maths Shape Calculator!
 
-To start, choose from 5 shapes:
-'c' / circle 
-'s' / square 
-'r' / rectangle 
-'t' / triangle or trapezium.
+To start, you'll be prompted to choose from 5 shapes:
+circle, square, rectangle, triangle or trapezium.
 
-The first 3 letters are accepted for every shape.
-[E.G. 'Tri' --> Triangle, 'Tra' --> Trapezium, etc.]
+You can enter the shape's first letter, first three letters, or full name.
 
-If you write 't', you'll be prompted to set either triangle or trapezium as 't'. 
-Type the full name / first 3 letters of either triangle or trapezium to overwrite this setting.
+Once you've chosen a shape, it's area formula will be printed 
+and it'll show which variables belong to which side.
+You must enter according to it's formula.
 
-Once you've chosen a shape, you'll be prompted to enter the length of the side /
-base / height. 
+When it loops back to choosing another shape,
+you can enter 'xxx' to view the shapes you've calculated and also see it 
+on a file in your computer.
 
-When asked to choose another shape, you can enter 'xxx' to exit the programme. 
-You'll see the shapes you've calculated and a file will be written to your computer.
+--- SETTINGS ---
+'t':
+If you write 't', you'll be prompted to set either triangle or trapezium as 't'.
+Once it's set, enter 'triangle' or 'trapezium' to overwrite what 't' defaults to.
+
+(NOTE: You won't be prompted if you've entered triangle or trapezium previously!)
+
+'round':
+Change how many decimal places you round to from it's default of 2.
+'0' is accepted if you want to round to the nearest whole number instead.
 
         ''')
 
@@ -64,6 +71,11 @@ def string_checker(question, num_letters, valid_ans_list):
 
         if response == "xxx":
             return response
+
+        elif response == "round":
+            round_to = number_checker("Round to: ")
+            round_setting.insert(0, round_to)
+            return "round"
 
         # iterates through every item in a list and checks
         # if it matches the user's response
@@ -139,13 +151,16 @@ def formula_check(response, exit_code):
         area = math.pi * (a ** 2)
 
     elif response == "triangle":
+
+        # if 2nd side isn't 0, calculate a right-angled triangles area
         if b != 0:
-            
             area = 1 / 2 * a * b
             perimeter = math.sqrt(a ** 2 + b ** 2)
 
+            # if 3rd side isn't 0, calculate a scalene triangle's area
             if c != 0:
                 s = (a + b + c) / 2
+
                 try:
                     area = math.sqrt(s * (s - a) * (s - b) * (s - c))
                     perimeter = a + b + c
@@ -155,8 +170,6 @@ def formula_check(response, exit_code):
                     minimum = [i for i in variables if 0 < i < max(variables)]
                     results = (f"Impossible Triangle: Value [{max(variables)}] is greater than"
                           f" the sum of the other 2 values {minimum}.")
-                    area = 0
-                    perimeter = 0
 
         # If only one side is given, we only print out the error.
         else:
@@ -180,9 +193,8 @@ def formula_check(response, exit_code):
     if area != 0:
 
         # rounding area and perimeter
-        round_to = number_checker("Round to: ", "round")
-        area = f'{area:.{round_to}f}'
-        perimeter = f'{perimeter:.{round_to}f}'
+        area = f'{area:.{round_setting[0]}f}'
+        perimeter = f'{perimeter:.{round_setting[0]}f}'
 
         # PANDAS area
         all_shapes.append(response)
@@ -264,6 +276,7 @@ loop_ran = 0
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 string_variables = ['a',  'b', 'c', 'd']
 shape_setting = []
+round_setting = [2]
 all_shapes = []
 all_area = []
 all_perimeter = []
@@ -293,6 +306,9 @@ while True:
 
     if shape == "xxx":
         break
+    elif shape == "round":
+        continue
+    print(shape)
 
     # 'n' is how many times we need to ask the user for the side / base / height of their shape
     n = area_formula(shape)
