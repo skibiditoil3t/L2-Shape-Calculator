@@ -42,9 +42,10 @@ Once it's set, enter 'triangle' or 'trapezium' to overwrite what 't' defaults to
 (NOTE: You won't be prompted if you've entered triangle or trapezium previously!)
 
 'round':
-Change how many decimal places you round to from it's default of 2.
-'0' is accepted if you want to round to the nearest whole number instead.
+Change how many decimal places you round to from it's default of 0.
 
+It's not recommended to change this setting above 0 if you're calculating with whole numbers.
+Doing so will round the whole numbers to 0.
         ''')
 
 
@@ -193,8 +194,8 @@ def formula_check(response, exit_code):
     if area != 0:
 
         # rounding area and perimeter
-        area = f'{area:.{round_setting[0]}f}'
-        perimeter = f'{perimeter:.{round_setting[0]}f}'
+        area = f'{area:.{round_setting[0]}g}'
+        perimeter = f'{perimeter:.{round_setting[0]}g}'
 
         # PANDAS area
         all_shapes.append(response)
@@ -203,24 +204,22 @@ def formula_check(response, exit_code):
 
     if shape in shape_list:
         if shape == "triangle":
-            if b != 0 and c == 0:
+            perimeter = "N/A"
+
+            if area == 0:
+                area = "N/A"
                 perimeter = "N/A"
-            else:
-                if area == 0:
-                    area = "N/A"
-                    perimeter = "N/A"
 
         # If the 4th side isn't given in a trapezium,
         # the programme assumes the user only wants to solve for area.
         elif shape == "trapezium":
-            if d <= 0:
-                perimeter = "N/A"
+            perimeter = "N/A"
 
         elif shape == "circle":
             results = f"Area: {area} \nCircumference: {perimeter}"
     print(f"\n{results}")
 
-    return area, perimeter
+    return results
 
 
 def area_formula(response):
@@ -250,13 +249,13 @@ def area_formula(response):
         shape_setting.insert(0, response)
 
     else:
-        i = 4
+        i = 3
 
-        height = number_checker("Length of height ('xxx' if no height available): ",
+        height = number_checker("\nEnter trapezium height ('xxx' if no height available): ",
                                 "float", "xxx")
 
-        text_formula = ("(a + b / 2) * c )  "
-                        "\nSide 'd' is only to calculate perimeter.")
+        text_formula = ("(a + b / 2) * height )  "
+                        "\nSide 'c' is only to calculate perimeter.")
 
         if height == "xxx":
             i = 4
@@ -265,7 +264,7 @@ def area_formula(response):
         shape_setting.insert(0, response)
 
     # gives user the area formula of the shape
-    print(f"\nArea formula: {text_formula}\n")
+    print(f"\nArea formula of {shape}: {text_formula}\n")
 
     return i
 
@@ -276,7 +275,7 @@ loop_ran = 0
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
 string_variables = ['a',  'b', 'c', 'd']
 shape_setting = []
-round_setting = [2]
+round_setting = [0]
 all_shapes = []
 all_area = []
 all_perimeter = []
@@ -308,7 +307,6 @@ while True:
         break
     elif shape == "round":
         continue
-    print(shape)
 
     # 'n' is how many times we need to ask the user for the side / base / height of their shape
     n = area_formula(shape)
