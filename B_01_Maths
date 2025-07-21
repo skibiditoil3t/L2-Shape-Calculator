@@ -1,0 +1,410 @@
+import math
+import pandas
+from tabulate import tabulate
+from datetime import datetime
+
+
+# Functions go here
+def make_statement(statement, decoration):
+    """Emphasises headings by adding decoration
+    at the start and end"""
+
+    return f"{decoration * 3} {statement} {decoration * 3}"
+
+
+def instruction():
+    """Gives the instructions to users"""
+    print(make_statement("Instructions", "="))
+
+    print('''
+--- HOW TO ---
+Welcome to the MHS Maths Shape Calculator!
+
+To start, you'll be prompted to choose from 5 shapes:
+circle, square, rectangle, triangle or trapezium.
+
+You can enter the shape's first letter, first three letters, or full name.
+
+Once you've chosen a shape, it's area formula will be shown
+and you must enter the variables according to that formula.
+
+When it loops back to choosing another shape,
+you can enter 'xxx' to view the shapes you've calculated and also see it 
+on a file in your computer.
+
+--- SETTINGS ---
+'t':
+If you write 't', you'll be prompted to set either triangle or trapezium as 't'.
+Entering 'triangle' or 'trapezium' will overwrite what 't' defaults to.
+
+'round':
+Change how many decimal places you round to from it's default of 0.
+Don't change this if you're calculating with whole numbers.
+        ''')
+
+
+def yes_no(question):
+    """check that users enter yes / y or no / n to a question"""
+
+    while True:
+        response = input(question).lower()
+
+        if response == "yes" or response == "y":
+            return "yes"
+        elif response == "no" or response == "n":
+            return "no"
+        else:
+            print("please enter yes (y) or no (n). \n")
+
+
+def string_checker(question, num_letters, valid_ans_list):
+    """checks that users enter the full word
+    or the 'n' letter/s of a word from a list of valid responses"""
+
+    while True:
+        response = input(question).lower()
+
+        if response == "xxx":
+            return response
+
+        elif response == "round":
+            round_to = number_checker("Round to: ")
+            round_setting.insert(0, round_to)
+            return "round"
+
+        # iterates through every item in a list and checks
+        # if it matches the user's response
+        for i in valid_ans_list:
+            if response == i or response == i[:num_letters] or response == i[:3]:
+                return i
+
+            elif response == "t":
+
+                # Returns the shape set to 't' if it's already there
+                if len(shape_setting) > 0:
+                    return shape_setting[0]
+
+                option = yes_no("\nDefault shape for 't' is triangle. Change to trapezium? ")
+
+                setting = "triangle"
+
+                if option == "yes":
+                    setting = "trapezium"
+
+                return setting
+
+        print(f"Please choose an option from {valid_ans_list}\n")
+
+
+def number_checker(question, num_type=None, exit_code=None):
+    """Checks if the value given is greater than zero"""
+
+    error = "Enter an integer greater than zero."
+    change_to = int
+
+    if num_type == "float":
+        error = "Enter a number greater than zero."
+        change_to = float
+
+    while True:
+        response = input(question).lower()
+
+        if response == exit_code:
+            return str(response)
+
+        try:
+            # change the response to a float and check that it's more than zero
+            response = change_to(response)
+
+            if response > 0:
+                return response
+            elif num_type == "round" and response == 0:
+                return response
+            else:
+                print(error)
+
+        except ValueError:
+            print(error)
+
+
+def shape_formula(response):
+    """Checks the user's chosen shape and gives a formula to show
+    where users should enter their variables"""
+
+    additional_info = ""
+
+    if response == "square" or response == "circle":
+        i = 1
+        text_formula = "a\u00b2"
+
+        if response == "circle":
+            text_formula = " \u03c0 * a\u00b2"
+
+    elif response == "rectangle":
+        i = 2
+        text_formula = "a * b"
+
+    elif response == "triangle":
+        i = 3
+        text_formula = "\U0000221As(s-a)(s-b)(s-c) "
+        additional_info = "\n['s' is calculated after a, b and c are given].\n"
+
+        sides = yes_no("Do you have 3 sides? ")
+
+        if sides == "no":
+            i = 2
+            text_formula = "a * b / 2"
+            additional_info = ""
+
+        shape_setting.insert(0, response)
+
+    else:
+        i = 4
+
+        h = yes_no("Do you have height? ")
+
+        text_formula = "(a + b / 2) * Height"
+        additional_info = "\na = larger base, b = shorter base, c & d = legs\n"
+
+        if h == "no":
+            additional_info = ("\nHeight = [\U0000221A((a-b))^2 + (c^2)]"
+                               "\na = larger base, b = shorter base, c and d = legs\n")
+
+        height.insert(0, h)
+        shape_setting.insert(0, response)
+
+    # print the shape's area formula
+    print("")
+    print(make_statement(f"Area Formula: {text_formula} ", "="))
+    print(additional_info, "")
+
+    return i
+
+
+def formula_check(response, round_type):
+    """Calculates the user's shape by the shape's according formula
+        and outputs the results"""
+
+    # initialise variables
+    shape_area = 0
+    shape_perimeter = 0
+    h = 0
+
+    if response == "xxx":
+        return response
+
+    # match response with shape and calculate the area and perimeter
+    if response == "circle":
+        shape_area = math.pi * (a ** 2)
+        shape_perimeter = math.pi * (a * 2)
+
+    elif response == "triangle":
+        shape_area = 1 / 2 * a * b
+
+        # Checks if the loop ran 3 times (meaning user has entered 3 variables)
+        # and calculates the area of a scalene triangle
+        if loop_ran == 3:
+            s = (a + b + c) / 2
+
+            try:
+                shape_area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+                shape_perimeter = a + b + c
+
+            except ValueError:
+                pass
+
+    elif response == "rectangle":
+        shape_area = a * b
+        shape_perimeter = (a * 2) + (b * 2)
+
+    elif response == "square":
+        shape_area = a ** 2
+        shape_perimeter = a * 4
+
+    elif response == "trapezium":
+        # calculates height if it's not present
+        if height[0] == "no":
+            h = math.sqrt((a - b) ** 2 - (c ** 2))
+
+        # checks if 'xxx' wasn't entered as the first variable, then prompts user for height
+        elif isinstance(variables[0], str):
+            h = number_checker("Length of Height: ", "float")
+
+        shape_area = (a + b) / 2 * h
+
+        # checks if both bases are the same and makes area = 0
+        if a == b:
+            shape_area = 0
+        elif c and d > 0:
+            shape_perimeter = a + b + c + d
+
+    # rounding area
+    if round_type == "area":
+        print("this is area")
+        shape_area = f'{shape_area:.{round_setting[0]}f}'
+
+        # changes area to N/A if it's 0
+        if shape_area == 0:
+            print("also been thru this")
+            shape_area = "N/A"
+        return shape_area
+
+    elif round_type == "perimeter":
+        print("this is perimeter")
+        shape_perimeter = f'{shape_perimeter:.{round_setting[0]}f}'
+
+        # changes perimeter to N/A if it's 0
+        if shape_perimeter == 0:
+            shape_perimeter = "N/A"
+        return shape_perimeter
+
+
+# lists
+shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
+string_variables = ['a', 'b', 'c', 'd']
+height = []
+shape_setting = []
+round_setting = [0]
+all_shapes = []
+all_area = []
+all_perimeter = []
+
+# PANDAS dictionary
+shape_calc_dict = {
+    "Shape": all_shapes,
+    "Area": all_area,
+    "Perimeter": all_perimeter,
+}
+
+# ask user if they want instructions
+want_instructions = yes_no("Do you want instructions? ")
+
+if want_instructions == "yes":
+    instruction()
+
+# math loop starts
+while True:
+
+    # initialise list
+    variables = []
+
+    # ask user for the shape
+    shape = string_checker("\nWhat shape are you solving? ", 1, shape_list)
+
+    if shape == "xxx":
+        break
+    elif shape == "round":
+        continue
+
+    # 'n' is how many times we need to ask the user for the side / base / height of their shape
+    n = shape_formula(shape)
+    loop_ran = 0
+
+    # runs loop 'n' amount of times
+    for item in range(n):
+        length = number_checker(f"Length of Side {string_variables[0 + loop_ran]}: ", 'float',
+                                'xxx')
+
+        if length == "xxx":
+            break
+
+        variables.append(length)
+        loop_ran += 1
+
+    # checks how many variables the user has entered
+    n = len(variables)
+
+    # if not all 4 sides present, put in 'n' amount of zeros
+    if n < 4:
+        for item in range(4 - n):
+            variables.append(0)
+
+    a, b, c, d = variables
+
+    # calculate the shape's area / perimeter
+    area = formula_check(shape, "area")
+    perimeter = formula_check(shape, "perimeter")
+
+    # results area
+    results = f"Area: {area}\nPerimeter: {perimeter}"
+
+    try:
+        if shape == "circle":
+            results = f"Area: {area}\nCircumference: {perimeter}"
+
+        elif shape == "triangle":
+            # if 'b' is 0, only 1 variable was entered
+            if b == 0:
+                results = "Invalid Triangle: Only one value given."
+
+            # checks if it's a degenerate triangle or impossible triangle
+            elif area == "N/A":
+                minimum = [i for i in variables if 0 < i < max(variables)]
+                results = (f"Impossible Triangle: Value {max(variables)} is greater than"
+                           f" the sum of the other 2 values {minimum[0], minimum[1]}.")
+
+        elif shape == "trapezium":
+            # checks if side 'c' was given for height calculation
+            if a == b:
+                results = "Invalid Trapezium: Bases 'a' and 'b' are equal to each-other."
+                if a + b == c + d:
+                    results = "Invalid Trapezium: Bases 'a' and 'b' are equal to it's legs 'c' and 'd'."
+
+            elif c == 0 and height[0] == "no":
+                results = "Invalid Trapezium: side 'c' was not given for height calculation"
+
+        if variables[0] == 0:
+            results = "No variable was entered."
+
+    except ValueError:
+        pass
+
+    print(f"{results}")
+
+    # Do PANDAS if area is valid
+    if area != "N/A":
+        all_shapes.append(shape)
+        all_area.append(area)
+        all_perimeter.append(perimeter)
+
+# Output area
+
+# Checks if PANDAS has been done before output
+if len(all_shapes) != 0:
+    # prepare date for proper file format
+    today = datetime.today()
+
+    # get day / month / year as individual strings
+    day = today.strftime("%d")
+    month = today.strftime("%m")
+    year = today.strftime("%Y")
+
+    # headings / strings
+    main_heading_string = make_statement(f"Math Calculator, {day} / {month} / {year}", "=")
+
+    shape_calc_frame = pandas.DataFrame(shape_calc_dict)
+    shape_calc_string = tabulate(shape_calc_frame, headers='keys',
+                                 tablefmt='psql', showindex=False)
+
+    # list of strings to be outputted / written to file
+    to_write = ["", main_heading_string, "\n", shape_calc_string]
+
+    # printing area
+    print()
+    for item in to_write:
+        print(item)
+
+    # create file to hold data (add .txt extension)
+    # prepare date for proper file format
+
+    file_name = f"Math_Calculator_{year}_{month}_{day}"
+    write_to = "{}.txt".format(file_name)
+
+    text_file = open(write_to, "w+")
+
+    # write the item to file
+    for item in to_write:
+        text_file.write(item)
+        text_file.write("\n")
+else:
+    print("No shape was calculated.")
