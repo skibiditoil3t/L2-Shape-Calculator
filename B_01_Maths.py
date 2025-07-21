@@ -14,7 +14,6 @@ def make_statement(statement, decoration):
 
 def instruction():
     """Gives the instructions to users"""
-    print("\n")
     print(make_statement("Instructions", "="))
 
     print('''
@@ -26,9 +25,8 @@ circle, square, rectangle, triangle or trapezium.
 
 You can enter the shape's first letter, first three letters, or full name.
 
-Once you've chosen a shape, it's area formula will be printed 
-and it'll show which variables belong to which side.
-You must enter according to it's formula.
+Once you've chosen a shape, it's area formula will be shown
+and you must enter the variables according to that formula.
 
 When it loops back to choosing another shape,
 you can enter 'xxx' to view the shapes you've calculated and also see it 
@@ -37,15 +35,11 @@ on a file in your computer.
 --- SETTINGS ---
 't':
 If you write 't', you'll be prompted to set either triangle or trapezium as 't'.
-Once it's set, enter 'triangle' or 'trapezium' to overwrite what 't' defaults to.
-
-(NOTE: You won't be prompted if you've entered triangle or trapezium previously!)
+Entering 'triangle' or 'trapezium' will overwrite what 't' defaults to.
 
 'round':
 Change how many decimal places you round to from it's default of 0.
-
-It's not recommended to change this setting above 0 if you're calculating with whole numbers.
-Doing so will round the whole numbers to 0.
+Don't change this if you're calculating with whole numbers.
         ''')
 
 
@@ -88,8 +82,7 @@ def string_checker(question, num_letters, valid_ans_list):
 
                 # Returns the shape set to 't' if it's already there
                 if len(shape_setting) > 0:
-                    setting = shape_setting[0]
-                    return setting
+                    return shape_setting[0]
 
                 option = yes_no("\nDefault shape for 't' is triangle. Change to trapezium? ")
 
@@ -134,95 +127,11 @@ def number_checker(question, num_type=None, exit_code=None):
             print(error)
 
 
-def formula_check(response, exit_code):
-    """calculates the user's shape by the shape's according formula
-        and outputs the results"""
+def shape_formula(response):
+    """Checks the user's chosen shape and gives a formula to show
+    where users should enter their variables"""
 
-    # initialise variables
-    area = 0
-    perimeter = 0
-    results = f"Area: {area}\nPerimeter: {perimeter}"
-
-    if response == exit_code:
-        return response
-
-    # match response with shape and calculate area (perimeter too if possible)
-    if response == "circle":
-        perimeter = math.pi * (a * 2)
-        area = math.pi * (a ** 2)
-
-    elif response == "triangle":
-
-        # if 2nd side isn't 0, calculate a right-angled triangles area
-        if b != 0:
-            area = 1 / 2 * a * b
-            perimeter = math.sqrt(a ** 2 + b ** 2)
-
-            # if 3rd side isn't 0, calculate a scalene triangle's area
-            if c != 0:
-                s = (a + b + c) / 2
-
-                try:
-                    area = math.sqrt(s * (s - a) * (s - b) * (s - c))
-                    perimeter = a + b + c
-
-                # if 2 of the sides are smaller than 1 side, give user an error
-                except ValueError:
-                    minimum = [i for i in variables if 0 < i < max(variables)]
-                    results = (f"Impossible Triangle: Value [{max(variables)}] is greater than"
-                          f" the sum of the other 2 values {minimum}.")
-
-        # If only one side is given, we only print out the error.
-        else:
-            results = "Invalid Triangle: Only one value given."
-
-    elif response == "rectangle":
-        area = a * b
-        perimeter = (a * 2) + (b * 2)
-
-    elif response == "square":
-        area = a ** 2
-        perimeter = a * 4
-
-    # need to check which is height and the parallel sides
-    elif response == "trapezium":
-        area = ((a + b) / 2) * c
-        if d > 0:
-            perimeter = a + b + c + d
-
-    # output area for shapes
-    if area != 0:
-
-        # rounding area and perimeter
-        area = f'{area:.{round_setting[0]}g}'
-        perimeter = f'{perimeter:.{round_setting[0]}g}'
-
-        # PANDAS area
-        all_shapes.append(response)
-        all_area.append(area)
-        all_perimeter.append(perimeter)
-
-    if shape in shape_list:
-        if shape == "triangle":
-            perimeter = "N/A"
-
-            if area == 0:
-                area = "N/A"
-                perimeter = "N/A"
-
-        # If the 4th side isn't given in a trapezium,
-        # the programme assumes the user only wants to solve for area.
-        elif shape == "trapezium":
-            perimeter = "N/A"
-
-        elif shape == "circle":
-            results = f"Area: {area} \nCircumference: {perimeter}"
-    print(f"\n{results}")
-
-    return results
-
-
-def area_formula(response):
+    additional_info = ""
 
     if response == "square" or response == "circle":
         i = 1
@@ -237,43 +146,109 @@ def area_formula(response):
 
     elif response == "triangle":
         i = 3
-        text_formula = ("\U0000221As(s-a)(s-b)(s-c) "
-                   "\n['s' is calculated after a, b and c are given].")
+        text_formula = "\U0000221As(s-a)(s-b)(s-c) "
+        additional_info = "\n['s' is calculated after a, b and c are given].\n"
 
         sides = yes_no("Do you have 3 sides? ")
 
         if sides == "no":
             i = 2
             text_formula = "a * b / 2"
+            additional_info = ""
 
         shape_setting.insert(0, response)
 
     else:
-        i = 3
+        i = 4
 
-        height = number_checker("\nEnter trapezium height ('xxx' if no height available): ",
-                                "float", "xxx")
+        h = yes_no("Do you have height? ")
 
-        text_formula = ("(a + b / 2) * height )  "
-                        "\nSide 'c' is only to calculate perimeter.")
+        text_formula = "(a + b / 2) * Height"
+        additional_info = "\na = larger base, b = shorter base, c & d = legs\n"
 
-        if height == "xxx":
-            i = 4
-            text_formula = "(a + b / 2) * √[c² - ((b - a)² + c² - d² / (2 * (b - a))²]"
+        if h == "no":
+            additional_info = ("\nHeight = [\U0000221A(a-b)^2 + (c^2)]"
+                               "\na = larger base, b = shorter base, c and d = legs\n")
 
+        height.insert(0, h)
         shape_setting.insert(0, response)
 
-    # gives user the area formula of the shape
-    print(f"\nArea formula of {shape}: {text_formula}\n")
+    # print the shape's area formula
+    print("")
+    print(make_statement(f"Area Formula: {text_formula} ", "="))
+    print(additional_info, "")
 
     return i
 
-# initialise variables
-loop_ran = 0
+
+def formula_check(response):
+    """Calculates the user's shape by the shape's according formula
+        and outputs the results"""
+
+    # initialise variables
+    shape_area = 0
+    shape_perimeter = 0
+    h = 0
+
+    if response == "xxx":
+        return response
+
+    # match response with shape and calculate the area and perimeter
+    if response == "circle":
+        shape_area = math.pi * (a ** 2)
+        shape_perimeter = math.pi * (a * 2)
+
+    elif response == "triangle":
+        shape_area = 1 / 2 * a * b
+
+        # if loop was ran 3 times, calculate the triangle using Heron's law
+        if loop_ran == 3:
+            s = (a + b + c) / 2
+
+            try:
+                shape_area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+                shape_perimeter = a + b + c
+
+            except ValueError:
+                shape_area = 0
+                shape_perimeter = 0
+
+    elif response == "rectangle":
+        shape_area = a * b
+        shape_perimeter = (a * 2) + (b * 2)
+
+    elif response == "square":
+        shape_area = a ** 2
+        shape_perimeter = a * 4
+
+    elif response == "trapezium":
+        # calculates height if it's not present
+        if height[0] == "no":
+            try:
+                e = a-b
+                h = math.sqrt(e ** 2 - (c ** 2))
+            except ValueError:
+                h = 0
+
+        # checks if 'xxx' wasn't entered as the first variable, then prompts user for height
+        elif isinstance(variables[0], str):
+            h = number_checker("Length of Height: ", "float")
+
+        shape_area = (a + b) / 2 * h
+
+        # checks if both bases are the same and makes area = 0
+        if a == b:
+            shape_area = 0
+        elif c and d > 0:
+            shape_perimeter = a + b + c + d
+
+    return shape_area, shape_perimeter
+
 
 # lists
 shape_list = ["circle", "triangle", "rectangle", "square", "trapezium"]
-string_variables = ['a',  'b', 'c', 'd']
+string_variables = ['a', 'b', 'c', 'd']
+height = []
 shape_setting = []
 round_setting = [0]
 all_shapes = []
@@ -294,7 +269,6 @@ if want_instructions == "yes":
     instruction()
 
 # math loop starts
-
 while True:
 
     # initialise list
@@ -309,12 +283,13 @@ while True:
         continue
 
     # 'n' is how many times we need to ask the user for the side / base / height of their shape
-    n = area_formula(shape)
+    n = shape_formula(shape)
     loop_ran = 0
 
     # runs loop 'n' amount of times
     for item in range(n):
-        length = number_checker(f"Length of Side {string_variables[0 + loop_ran]}: ", 'float', 'xxx')
+        length = number_checker(f"Length of Side {string_variables[0 + loop_ran]}: ", 'float',
+                                'xxx')
 
         if length == "xxx":
             break
@@ -333,9 +308,68 @@ while True:
     a, b, c, d = variables
 
     # calculate the shape's area / perimeter
-    formula = formula_check(shape, "xxx")
+    area = formula_check(shape)[0]
+    perimeter = formula_check(shape)[1]
+
+    # changes area to N/A if it's 0
+    if area == 0:
+        print("also been thru this")
+        area = "N/A"
+
+    # changes perimeter to N/A if it's 0
+    if perimeter == 0:
+        print("test if its been through perimeter")
+        perimeter = "N/A"
+
+    # rounding area
+    area = f'{area:.{round_setting[0]}f}'
+    perimeter = f'{perimeter:.{round_setting[0]}f}'
+
+
+    # results area
+    results = f"Area: {area}\nPerimeter: {perimeter}"
+
+    try:
+        if shape == "circle":
+            results = f"Area: {area}\nCircumference: {perimeter}"
+
+        elif shape == "triangle":
+            # if 'b' is 0, only 1 variable was entered
+            if b == 0:
+                results = "Invalid Triangle: Only one value given."
+
+            # checks if it's a degenerate triangle or impossible triangle
+            elif area == "N/A":
+                minimum = [i for i in variables if 0 < i < max(variables)]
+                results = (f"Impossible Triangle: Value {max(variables)} is greater than"
+                           f" the sum of the other 2 values {minimum[0], minimum[1]}.")
+
+        elif shape == "trapezium":
+            # checks if side 'c' was given for height calculation
+            if c == 0 and height[0] == "no":
+                results = "Invalid Trapezium: Side 'c' was not given for height calculation"
+            elif a == b:
+                results = "Invalid Trapezium: Bases 'a' and 'b' are equal to each-other."
+                if a + b == c + d:
+                    results = "Invalid Trapezium: Bases 'a' and 'b' are equal to it's legs 'c' and 'd'."
+
+        if variables[0] == 0:
+            results = "No variable was entered."
+
+    except ValueError:
+        pass
+
+    print(f"{results}")
+
+    # Do PANDAS if area is valid
+    if area != "N/A":
+        all_shapes.append(shape)
+        all_area.append(area)
+        all_perimeter.append(perimeter)
 
 # Output area
+
+# Checks if PANDAS has been done before output
 if len(all_shapes) != 0:
     # prepare date for proper file format
     today = datetime.today()
