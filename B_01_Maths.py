@@ -127,9 +127,9 @@ def number_checker(question, num_type=None, exit_code=None):
             print(error)
 
 
-def shape_formula(response):
+def formula_check(response):
     """Checks the user's chosen shape and gives a formula to show
-    where users should enter their variables"""
+    where users should enter their side / base / height values"""
 
     additional_info = ""
 
@@ -147,7 +147,7 @@ def shape_formula(response):
     elif response == "triangle":
         i = 3
         text_formula = "\U0000221As(s-a)(s-b)(s-c) "
-        additional_info = "\n['s' is calculated after a, b and c are given].\n"
+        additional_info = "\n['s' is calculated after a, b and c are given]."
 
         sides = yes_no("Do you have 3 sides? ")
 
@@ -164,11 +164,12 @@ def shape_formula(response):
         h = yes_no("Do you have height? ")
 
         text_formula = "(a + b / 2) * Height"
-        additional_info = "\na = larger base, b = shorter base, c & d = legs\n"
+        additional_info = ("\na = shorter base, b = larger base, c & d = legs"
+                           " Height is calculated after giving 2 variables.")
 
         if h == "no":
-            additional_info = ("\nHeight = [\U0000221A(a-b)^2 + (c^2)]"
-                               "\na = larger base, b = shorter base, c and d = legs\n")
+            additional_info = ("\na = shorter base, b = larger base, c and d = legs"
+                               "All sides are required to calculate the area.")
 
         height.insert(0, h)
         shape_setting.insert(0, response)
@@ -176,12 +177,12 @@ def shape_formula(response):
     # print the shape's area formula
     print("")
     print(make_statement(f"Area Formula: {text_formula} ", "="))
-    print(additional_info, "")
+    print(additional_info, "\n")
 
     return i
 
 
-def formula_check(response):
+def shape_formula(response):
     """Calculates the user's shape by the shape's according formula
         and outputs the results"""
 
@@ -213,6 +214,10 @@ def formula_check(response):
                 shape_area = 0
                 shape_perimeter = 0
 
+        if shape_area < 0:
+            shape_perimeter = 0
+            pass
+
     elif response == "rectangle":
         shape_area = a * b
         shape_perimeter = (a * 2) + (b * 2)
@@ -222,10 +227,11 @@ def formula_check(response):
         shape_perimeter = a * 4
 
     elif response == "trapezium":
+
         # calculates height if it's not present
         if height[0] == "no":
             try:
-                e = a-b
+                e = b-a
                 h = math.sqrt(e ** 2 - (c ** 2))
             except ValueError:
                 h = 0
@@ -283,7 +289,7 @@ while True:
         continue
 
     # 'n' is how many times we need to ask the user for the side / base / height of their shape
-    n = shape_formula(shape)
+    n = formula_check(shape)
     loop_ran = 0
 
     # runs loop 'n' amount of times
@@ -308,60 +314,62 @@ while True:
     a, b, c, d = variables
 
     # calculate the shape's area / perimeter
-    area = formula_check(shape)[0]
-    perimeter = formula_check(shape)[1]
+    area = shape_formula(shape)[0]
+    perimeter = shape_formula(shape)[1]
 
     # changes area to N/A if it's 0
     if area == 0:
-        print("also been thru this")
+        print("test if it's been through area")
         area = "N/A"
+    else:
+        area = f'{area:.{round_setting[0]}f}'
 
     # changes perimeter to N/A if it's 0
     if perimeter == 0:
         print("test if its been through perimeter")
         perimeter = "N/A"
-
-    # rounding area
-    area = f'{area:.{round_setting[0]}f}'
-    perimeter = f'{perimeter:.{round_setting[0]}f}'
-
+    else:
+        perimeter = f'{perimeter:.{round_setting[0]}f}'
 
     # results area
     results = f"Area: {area}\nPerimeter: {perimeter}"
 
-    try:
-        if shape == "circle":
-            results = f"Area: {area}\nCircumference: {perimeter}"
+    if shape == "circle":
+        results = f"Area: {area}\nCircumference: {perimeter}"
 
-        elif shape == "triangle":
-            # if 'b' is 0, only 1 variable was entered
-            if b == 0:
-                results = "Invalid Triangle: Only one value given."
+    if shape == "triangle":
+        # if 'b' is 0, only 1 variable was entered
+        if b == 0:
+            results = "Invalid Triangle: Only one value given."
 
-            # checks if it's a degenerate triangle or impossible triangle
-            elif area == "N/A":
-                minimum = [i for i in variables if 0 < i < max(variables)]
-                results = (f"Impossible Triangle: Value {max(variables)} is greater than"
-                           f" the sum of the other 2 values {minimum[0], minimum[1]}.")
+        # Area can be N/A if triangle is impossible (or degenerate).
+        elif area == "N/A":
+            minimum = [i for i in variables if 0 < i < max(variables)]
+            results = (f"Impossible Triangle: Value {max(variables)} is greater than"
+                       f" the sum of the other 2 values {minimum[0], minimum[1]}.")
 
-        elif shape == "trapezium":
-            # checks if side 'c' was given for height calculation
-            if c == 0 and height[0] == "no":
-                results = "Invalid Trapezium: Side 'c' was not given for height calculation"
-            elif a == b:
-                results = "Invalid Trapezium: Bases 'a' and 'b' are equal to each-other."
-                if a + b == c + d:
-                    results = "Invalid Trapezium: Bases 'a' and 'b' are equal to it's legs 'c' and 'd'."
+            # subtract every variable in the list by the next variable
+            # and sum the result to check if it's 0
+            if sum([variables[0 + i] - variables[1 + i] for i in sorted(variables, reverse=True)]) == 0:
+                print("Sides: ", sum([variables[i] - variables[i + 1] for i in sorted(variables, reverse=True)]))
+                results = (f"Degenerate Triangle: Sum of the shorter sides are equal to the longest side,"
+                           " therefore the triangle has collapsed into a straight line with no area to calculate.")
 
-        if variables[0] == 0:
-            results = "No variable was entered."
+    if shape == "trapezium":
+        # checks if side 'c' was given for height calculation
+        if c == 0 and height[0] == "no":
+            results = "Invalid Trapezium: Side 'c' was not given for height calculation"
+        elif a == b:
+            results = "Invalid Trapezium: Bases 'a' and 'b' are equal to each-other."
+            if a + b == c + d:
+                results = "Invalid Trapezium: Bases 'a' and 'b' are equal to it's legs 'c' and 'd'."
 
-    except ValueError:
-        pass
+    if variables[0] == 0:
+        results = "No variable was entered."
 
     print(f"{results}")
 
-    # Do PANDAS if area is valid
+    # Only do PANDAS if area is valid
     if area != "N/A":
         all_shapes.append(shape)
         all_area.append(area)
